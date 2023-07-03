@@ -1,5 +1,6 @@
 # Этот файл содержит обработчики различных типов сообщений, которые ваш бот может получать.
 # Здесь вы можете определить функции для обработки текстовых сообщений, команд, изображений, аудиофайлов и других типов медиа.
+
 import io
 import logging
 
@@ -7,7 +8,8 @@ from aiogram import types, Router, F, Bot
 from aiogram.types import CallbackQuery, ReplyKeyboardRemove, ReplyKeyboardMarkup, InputFile, BufferedInputFile
 from aiogram.filters import Command, Text
 from aiogram.fsm.context import FSMContext
-from utils import action, excel_file, text_out, autenfication_number
+from utils import autenfication_number, excel_read
+
 
 import kb
 import text
@@ -45,7 +47,7 @@ async def start_handler(clbck: CallbackQuery, state: FSMContext):
     await clbck.message.answer(text.menu.format(), reply_markup=kb.operation)
 
 
-@router.callback_query(F.data.in_({'1', '2', '3', '4', '5'}))
+@router.callback_query(F.data.in_({'payments', 'regions', 'stores', 'sellers', 'devices'}))
 async def input_operation(clbck: CallbackQuery, state: FSMContext):
     state_res = await state.set_state(Form.operation)
     await state.clear()
@@ -68,19 +70,20 @@ async def input_period(clbck: CallbackQuery, state: FSMContext):
     elif clbck.data in lst_period:
         state = await state.update_data(period=clbck.data)
         logging.info('state_update: %r', state)
+        text_report = excel_read(state.get('operation'), state.get('period'))
         # await clbck.message.edit_text(text.date_selected)
-        data = action(state.get('operation'), state.get('period'))
-        logging.info("DATA: %r", data[0])
+        # data = action(state.get('operation'), state.get('period'))
+        # logging.info("DATA: %r", data[0])
         # excel_file(data)
-        text_result = text_out(data)
-        await clbck.message.edit_text(text_result, reply_markup=kb.excel)
+        # text_result = text_out(data)
+        await clbck.message.edit_text(text=text_report, reply_markup=kb.excel)
 
 
-@router.callback_query(F.data.in_({'excel'}))
-async def excel_convert(clbck: CallbackQuery, state: FSMContext):
-    await clbck.message.answer(text='Будет завтра ;)')
+# @router.callback_query(F.data.in_({'excel'}))
+# async def excel_convert(clbck: CallbackQuery, state: FSMContext):
+#     await clbck.message.answer(text='Будет завтра ;)')
 
 
-# @router.message(Command('excel'))
-# async def excel_convert(msg: types.Message):
-#     exl_file = excel_file()
+@router.message(F.text)
+async def excel_convert(msg: types.Message):
+    await msg.answer('Нажимай кнопочки!')

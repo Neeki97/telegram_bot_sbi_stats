@@ -6,11 +6,11 @@ phone_number = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Подели�
 
 
 operation_button = [
-    [InlineKeyboardButton(text='Данные по всем фин. партнерам', callback_data='1')],
-    [InlineKeyboardButton(text='Данные по областям', callback_data='2')],
-    [InlineKeyboardButton(text='ТОП-10 локаций', callback_data='3')],
-    [InlineKeyboardButton(text='ТОП-10 продавцов', callback_data='4')],
-    [InlineKeyboardButton(text='ТОП-10 девайсов', callback_data='5')]
+    [InlineKeyboardButton(text='Данные по всем фин. партнерам', callback_data='payments')],
+    [InlineKeyboardButton(text='Данные по областям', callback_data='regions')],
+    [InlineKeyboardButton(text='ТОП-10 локаций', callback_data='stores')],
+    [InlineKeyboardButton(text='ТОП-10 продавцов', callback_data='sellers')],
+    [InlineKeyboardButton(text='ТОП-10 девайсов', callback_data='devices')]
 ]
 operation = InlineKeyboardMarkup(inline_keyboard=operation_button)
 

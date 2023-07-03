@@ -2,13 +2,33 @@ import logging
 from datetime import datetime, timedelta
 from database import server, cursor, connection
 import pandas as pd
+import openpyxl
+import os
+
+
+def autenfication_number(phone, chat_id, firstname, lastname, username):
+    query = f"""
+        SELECT * FROM telegram_users WHERE phonenumber='{phone}' """
+    cursor.execute(query)
+    result = cursor.fetchall()
+    logging.info('result: %r', result)
+    if result:
+        query = f"""
+        UPDATE telegram_users
+        SET chat_id='{chat_id}', firstname='{firstname}', lastname='{lastname}', username='{username}'
+        WHERE phonenumber='{phone}' """
+        cursor.execute(query)
+        connection.commit()
+        return True
+    else:
+        return False
 
 
 def payments_data(date):  # Вывод данных по фин партнерам
     # server.start()
     query = f"""
-        SELECT ox_payments.name as payment_name,
-        COUNT(ox_sell_transactions.ox_payment_id) AS quantity,
+        SELECT ox_payments.name as name,
+        COUNT(ox_sell_transactions.ox_payment_id) AS quantity_sale,
         SUM(ox_sell_transactions.price * CASE WHEN ox_sell_transactions.ox_payment_id = 15 THEN 12 ELSE 1 END) as total_price
         FROM ox_sell_transactions 
         JOIN ox_payments
@@ -32,7 +52,7 @@ def payments_data(date):  # Вывод данных по фин партнера
 def region_data(date):  # Вывод данных по областям
     # server.start()
     query = f"""
-        SELECT ox_locations."administrativeArea",
+        SELECT ox_locations."administrativeArea" as name,
         COUNT(ox_locations."id") as quantity_sale,
         SUM(ox_sell_transactions.price * CASE WHEN ox_sell_transactions.ox_payment_id = 15 THEN 12 ELSE 1 END) as total_price
         FROM ox_sell_transactions
@@ -62,7 +82,7 @@ def store_data(date):  # Вывод ТОП-10 по торговым точкам
     query = f"""
         SELECT subquery.*
         FROM (
-        SELECT ox_locations."name" as store,
+        SELECT ox_locations."name" as name,
         COUNT(ox_locations."id") as quantity_sale, 
         SUM(ox_sell_transactions.price * CASE WHEN ox_sell_transactions.ox_payment_id = 15 THEN 12 ELSE 1 END) as total_price
         FROM "ox_sell_transactions"
@@ -93,7 +113,7 @@ def seller_data(date):  # Вывод ТОП-10 по продавцам
     query = f"""
         SELECT subquery.*
         FROM (
-        SELECT (ox_users."firstName" || ' ' || ox_users."lastName") as full_name,
+        SELECT (ox_users."firstName" || ' ' || ox_users."lastName") as name,
         COUNT(ox_users."id") as quantity_sale,  
         SUM(ox_sell_transactions.price * CASE WHEN ox_sell_transactions.ox_payment_id = 15 THEN 12 ELSE 1 END) as total_price,
         ox_locations."name" as store 
@@ -129,7 +149,7 @@ def device_data(date):  # Вывод ТОП-10 по девайсам
     query = f"""
         SELECT subquery.*
         FROM (
-        SELECT ox_variants."name" as device,
+        SELECT ox_variants."name" as name,
         COUNT(ox_variants."id") as quantity_sale, 
         SUM(ox_sell_transactions.price * CASE WHEN ox_sell_transactions.ox_payment_id = 15 THEN 12 ELSE 1 END) as total_price
         FROM ox_variants
@@ -154,24 +174,6 @@ def device_data(date):  # Вывод ТОП-10 по девайсам
     return data
 
 
-def autenfication_number(phone, chat_id, firstname, lastname, username):
-    query = f"""
-        SELECT * FROM telegram_users WHERE phonenumber='{phone}' """
-    cursor.execute(query)
-    result = cursor.fetchall()
-    logging.info('result: %r', result)
-    if result:
-        query = f"""
-        UPDATE telegram_users
-        SET chat_id='{chat_id}', firstname='{firstname}', lastname='{lastname}', username='{username}'
-        WHERE phonenumber='{phone}' """
-        cursor.execute(query)
-        connection.commit()
-        return True
-    else:
-        return False
-
-
 def selection_date(period):  # Выбор периода: день, неделя, месяц
     now = datetime.today()
 
@@ -192,53 +194,74 @@ def selection_date(period):  # Выбор периода: день, неделя
         return start_of_month.strftime("%Y-%m-%d"), str_name
 
 
-def text_out(result):
-    text_file = f'<b>Отчёт: {result[1]}</b>\n<b>Период: {result[2]}</b>\n\n'
-    if not result[0]:
-        text_file += 'Данные будут обновленны после 12:00'
-        return text_file
-    else:
-        for keys, values in result[0].items():
-            text_file += f'<b>{keys}:</b> \nКоличество продаж: {values[0]} \nОбщая сумма: {values[1]:,} сум\n\n'
-        return text_file
-
-
-def excel_file(data):
+def excel_write(data, type_operation, period):
     current_date = datetime.now().strftime("%Y-%m-%d_%H-%M")
-    df = pd.DataFrame.from_dict(data[0], orient='index', columns=['Количество продаж', 'Общая сумма', 'Начало даты', 'Конец даты'])
-    filename = f"Отчёт-{data[1]}-{current_date}.xlsx"
-    df.to_excel(filename, index_label=f'{data[1]}')
-    return filename
+    df = pd.DataFrame.from_dict(data, orient='index', columns=['Количество продаж', 'Общая сумма', 'Начало даты', 'Конец даты'])
+    logging.info('df_info: %r', df)
+    filename = f"Отчёт|{type_operation}|{period}|{current_date}.xlsx"
+    filepath = f'/home/report/web/report.smartblax.uz/public_html/uploads/{filename}'
+    df.to_excel(filepath, index_label=f'{type_operation}')
+    return filepath, filename
 
-# , orient='index', columns=['Количество продаж', 'Общая сумма', 'Начало даты', 'Конец даты']
-# index_label = f'{index_label}
+
+def excel_read(operation, period):
+    query = f"""
+            SELECT path 
+            FROM import_excel
+            WHERE operation = '{operation}' AND period = '{period}'
+            ORDER BY created_at DESC
+            LIMIT 1 """
+    cursor.execute(query)
+    excel_file_path = cursor.fetchone()
+    logging.info('path: %r', excel_file_path)
+    excel_file_path = os.path.normpath(excel_file_path[0])
+    logging.info('path_new: %r', excel_file_path)
+    df = pd.read_excel(excel_file_path)
+    new_data = {}
+    text_file = f'<b>Отчёт: по фин партнерам </b>\n<b>Период: за вчера</b>\n\n'
+    for index, device in df[f'{operation}'].items():
+        sales = int(df['Количество продаж'][index])
+        total_price = int(df['Общая сумма'][index])
+        formatted_total_price = '{:,}'.format(total_price).replace(',', ' ')
+        text_file += f'<b>{device}:</b> \nКоличество продаж: {sales} \nОбщая сумма: {formatted_total_price} сум\n\n'
+    return text_file
 
 
-def action(numb, period):
-    date_func = selection_date(period)
-    if numb == '1':
-        partners = payments_data(date_func[0])
-        self_name = 'По фин.партнерам'
-        str_date = date_func[1]
-        return partners, self_name, str_date
-    elif numb == '2':
-        regions = region_data(date_func[0])
-        self_name = 'По областям'
-        str_name = date_func[1]
-        return regions, self_name, str_name
-    elif numb == '3':
-        locations = store_data(date_func[0])
-        self_name = 'ТОП-10 торговых точек'
-        str_name = date_func[1]
-        return locations, self_name, str_name
-    elif numb == '4':
-        seller = seller_data(date_func[0])
-        self_name = 'ТОП-10 продавцов'
-        str_name = date_func[1]
-        return seller, self_name, str_name
-    elif numb == '5':
-        devices = device_data(date_func[0])
-        self_name = 'ТОП-10 девайсов'
-        str_name = date_func[1]
-        return devices, self_name, str_name
+# def text_out(result):
+#     text_file = f'<b>Отчёт: {result[1]}</b>\n<b>Период: {result[2]}</b>\n\n'
+#     if not result[0]:
+#         text_file += 'Данные будут обновленны после 12:00'
+#         return text_file
+#     else:
+#         for keys, values in result[0].items():
+#             text_file += f'<b>{keys}:</b> \nКоличество продаж: {values[0]} \nОбщая сумма: {values[1]:,} сум\n\n'
+#         return text_file
 
+
+# def action(numb, period):
+#     date_func = selection_date(period)
+#     if numb == 'payments':
+#         partners = payments_data(date_func[0])
+#         self_name = 'По фин.партнерам'
+#         str_date = date_func[1]
+#         return partners, self_name, str_date
+#     elif numb == 'regions':
+#         regions = region_data(date_func[0])
+#         self_name = 'По областям'
+#         str_name = date_func[1]
+#         return regions, self_name, str_name
+#     elif numb == 'stores':
+#         locations = store_data(date_func[0])
+#         self_name = 'ТОП-10 торговых точек'
+#         str_name = date_func[1]
+#         return locations, self_name, str_name
+#     elif numb == 'sellers':
+#         seller = seller_data(date_func[0])
+#         self_name = 'ТОП-10 продавцов'
+#         str_name = date_func[1]
+#         return seller, self_name, str_name
+#     elif numb == 'devices':
+#         devices = device_data(date_func[0])
+#         self_name = 'ТОП-10 девайсов'
+#         str_name = date_func[1]
+#         return devices, self_name, str_name
