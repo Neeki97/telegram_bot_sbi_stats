@@ -215,7 +215,4 @@ def import_report():
                 insert_data(filename, filepath, type_op, period)
 
 
-# schedule.every(5).minutes.do(import_report)
-# while True:
-#     schedule.run_pending()
-#     time.sleep(1)
+import_report()

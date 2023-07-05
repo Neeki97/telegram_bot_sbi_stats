@@ -90,4 +90,3 @@ async def input_period(clbck: CallbackQuery, state: FSMContext):
 @router.message(F.text)
 async def excel_convert(msg: types.Message):
     await msg.answer('Нажимайте кнопочки!')
-    import_report()
