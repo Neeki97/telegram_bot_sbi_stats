@@ -17,7 +17,7 @@ async def main() -> None:
     logging.basicConfig(level=logging.INFO)
     bot = Bot(token=config.bot_token.get_secret_value(), parse_mode='HTML')
     dp = Dispatcher(storage=MemoryStorage())
-    # dp.include_router(router=router)
+    dp.include_router(router=router)
     await bot.delete_webhook(drop_pending_updates=True)
     dp.message.middleware(ChatActionMiddleware())
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
