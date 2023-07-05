@@ -30,7 +30,7 @@ def excel_write(data, type_operation, period):
     df = pd.DataFrame.from_dict(data, orient='index', columns=['Количество продаж', 'Общая сумма', 'Начало даты', 'Конец даты'])
     logging.info('df_info: %r', df)
     filename = f'Отчёт_{type_operation}_{period}_{current_date.replace("-", "_")}.xlsx'
-    filepath = f'C:\\Users\\Neeki\\Desktop\\test\\bot\\loads\\{filename}'
+    filepath = f'loads\\{filename}'
     df.to_excel(filepath, index_label=f'{type_operation}')
     return filepath, filename
 
