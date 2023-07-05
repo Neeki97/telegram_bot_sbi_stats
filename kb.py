@@ -29,7 +29,7 @@ excel_button = [
     [InlineKeyboardButton(text='Сформировать excel-файл', callback_data='excel')],
     [InlineKeyboardButton(text='Выбрать отчёт', callback_data='Выбрать отчёт')]
 ]
-excel = InlineKeyboardMarkup(inline_keyboard=excel_button)
+upload_excel = InlineKeyboardMarkup(inline_keyboard=excel_button)
 
 
 start = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Выбрать отчёт')]],

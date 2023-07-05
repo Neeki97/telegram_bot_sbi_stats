@@ -9,6 +9,10 @@ from handlers import router
 from config_set import config
 from importData import import_report
 
+import time
+import schedule
+
+
 async def main() -> None:
     logging.basicConfig(level=logging.INFO)
     bot = Bot(token=config.bot_token.get_secret_value(), parse_mode='HTML')

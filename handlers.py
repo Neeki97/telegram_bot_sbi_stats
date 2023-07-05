@@ -5,10 +5,11 @@ import io
 import logging
 
 from aiogram import types, Router, F, Bot
-from aiogram.types import CallbackQuery, ReplyKeyboardRemove, ReplyKeyboardMarkup, InputFile, BufferedInputFile
+from aiogram.types import CallbackQuery, FSInputFile, ReplyKeyboardRemove, ReplyKeyboardMarkup, InputFile, BufferedInputFile
 from aiogram.filters import Command, Text
 from aiogram.fsm.context import FSMContext
-from utils import autenfication_number, excel_read
+from utils import autenfication_number, excel_read, uploads_excel
+from importData import import_report
 
 
 import kb
@@ -59,10 +60,11 @@ async def input_operation(clbck: CallbackQuery, state: FSMContext):
     await clbck.message.edit_text(text.date, reply_markup=kb.period)
 
 
-@router.callback_query(Form.period, F.data.in_({'today', 'yesterday', 'week', 'month', 'cancel'}))
+@router.callback_query(Form.period, F.data.in_({'today', 'yesterday', 'week', 'month', 'cancel', 'excel'}))
 async def input_period(clbck: CallbackQuery, state: FSMContext):
     lst_period = 'today', 'yesterday', 'week', 'month'
     cancel_button = 'cancel'
+    excel_button = 'excel'
     if clbck.data == cancel_button:
         state = await state.clear()
         logging.info('state_clear: %r', state)
@@ -76,14 +78,17 @@ async def input_period(clbck: CallbackQuery, state: FSMContext):
         # logging.info("DATA: %r", data[0])
         # excel_file(data)
         # text_result = text_out(data)
-        await clbck.message.edit_text(text=text_report, reply_markup=kb.excel)
-
-
-# @router.callback_query(F.data.in_({'excel'}))
-# async def excel_convert(clbck: CallbackQuery, state: FSMContext):
-#     await clbck.message.answer(text='Будет завтра ;)')
+        await clbck.message.edit_text(text=text_report, reply_markup=kb.upload_excel)
+    elif clbck.data == excel_button:
+        state = await state.get_data()
+        logging.info('log_state: %r', state)
+        file = uploads_excel(state['operation'], state['period'])
+        await clbck.message.answer_document(caption='Файл готов! ', document=file)
+    chat_id = clbck.message.chat.id
+    logging.info('finish_chat_id: %r', chat_id)
 
 
 @router.message(F.text)
 async def excel_convert(msg: types.Message):
-    await msg.answer('Нажимай кнопочки!')
+    await msg.answer('Нажимайте кнопочки!')
+    import_report()
