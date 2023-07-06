@@ -29,11 +29,11 @@ async def autenfication_user(msg: types.Message):
     firstname = msg.contact.first_name
     lastname = msg.contact.last_name
     username = msg.chat.username
-    logging.info("phone: %r", phone)
-    logging.info("chat_id: %r", chat_id)
-    logging.info("firstname: %r", firstname)
-    logging.info("lastname: %r", lastname)
-    logging.info("username: %r", username)
+    # logging.info("phone: %r", phone)
+    # logging.info("chat_id: %r", chat_id)
+    # logging.info("firstname: %r", firstname)
+    # logging.info("lastname: %r", lastname)
+    # logging.info("username: %r", username)
     if autenfication_number(phone, chat_id, firstname, lastname, username):
         await msg.reply(text='Отлично! У вас есть доступ!', reply_markup=types.ReplyKeyboardRemove())
         await msg.answer(text.menu, reply_markup=kb.operation)
@@ -48,9 +48,8 @@ async def start_handler(clbck: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.in_({'payments', 'regions', 'stores', 'sellers', 'devices'}))
 async def input_operation(clbck: CallbackQuery, state: FSMContext):
-    state_res = await state.set_state(Form.operation)
+    await state.set_state(Form.operation)
     await state.clear()
-    logging.info('state_res: %r', state_res)
     operation = await state.update_data(operation=clbck.data)
     logging.info('operation: %r', operation)
     await clbck.message.delete_reply_markup()
@@ -65,7 +64,7 @@ async def input_period(clbck: CallbackQuery, state: FSMContext):
     excel_button = 'excel'
     if clbck.data == cancel_button:
         state = await state.clear()
-        logging.info('state_clear: %r', state)
+        # logging.info('state_clear: %r', state)
         await clbck.message.edit_text(text.menu, reply_markup=kb.operation)
     elif clbck.data in lst_period:
         state = await state.update_data(period=clbck.data)
@@ -79,11 +78,11 @@ async def input_period(clbck: CallbackQuery, state: FSMContext):
         await clbck.message.edit_text(text=text_report, reply_markup=kb.upload_excel)
     elif clbck.data == excel_button:
         state = await state.get_data()
-        logging.info('log_state: %r', state)
+        # logging.info('log_state: %r', state)
         file = uploads_excel(state['operation'], state['period'])
         await clbck.message.answer_document(caption='Файл готов! ', document=file)
     chat_id = clbck.message.chat.id
-    logging.info('finish_chat_id: %r', chat_id)
+    logging.info('user_chat_id: %r', chat_id)
 
 
 @router.message(F.text)

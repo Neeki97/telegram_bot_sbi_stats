@@ -1,11 +1,9 @@
 import logging
 from datetime import datetime, timedelta
-from database import server, cursor, connection
+from database import cursor
 
 from database import connection
 from utils import excel_write
-import time
-import schedule
 
 
 def payments_data(start_date, end_date):  # Вывод данных по фин партнерам
@@ -26,7 +24,7 @@ def payments_data(start_date, end_date):  # Вывод данных по фин 
     rows = cursor.fetchall()
     data = {}
     for row in rows:
-        data[row[0]] = (row[1], row[2], start_date + " 00:00", end_date + " " + datetime.now().strftime("%H:%M:%S"))
+        data[row[0]] = (row[1], row[2], start_date + " 00:00", end_date)
     # server.stop()
     # cursor.close()
     # connection.close()
@@ -54,7 +52,7 @@ def region_data(start_date, end_date):  # Вывод данных по обла�
     rows = cursor.fetchall()
     data = {}
     for row in rows:
-        data[row[0]] = (row[1], row[2], start_date + " 00:00", end_date + " " + datetime.now().strftime("%H:%M:%S"))
+        data[row[0]] = (row[1], row[2], start_date + " 00:00", end_date)
     # server.stop()
     # cursor.close()
     # connection.close()
@@ -85,7 +83,7 @@ def store_data(start_date, end_date):  # Вывод ТОП-10 по торгов�
     rows = cursor.fetchall()
     data = {}
     for row in rows:
-        data[row[0]] = (row[1], row[2], start_date + " 00:00", end_date + " " + datetime.now().strftime("%H:%M:%S"))
+        data[row[0]] = (row[1], row[2], start_date + " 00:00", end_date)
     # server.stop()
     # cursor.close()
     # connection.close()
@@ -121,7 +119,7 @@ def seller_data(start_date, end_date):  # Вывод ТОП-10 по продав
     rows = cursor.fetchall()
     data = {}
     for row in rows:
-        data[row[0]] = (row[1], row[2], start_date + " 00:00", end_date + " " + datetime.now().strftime("%H:%M:%S"))
+        data[row[0]] = (row[1], row[2], start_date + " 00:00", end_date)
     # server.stop()
     # cursor.close()
     # connection.close()
@@ -151,7 +149,7 @@ def device_data(start_date, end_date):  # Вывод ТОП-10 по девайс
     rows = cursor.fetchall()
     data = {}
     for row in rows:
-        data[row[0]] = (row[1], row[2], start_date + " 00:00", end_date + " " + datetime.now().strftime("%H:%M:%S"))
+        data[row[0]] = (row[1], row[2], start_date + " 00:00", end_date)
     # server.stop()
     # cursor.close()
     # connection.close()
@@ -163,18 +161,18 @@ def selection_date(period):  # Выбор периода: день, неделя
     if period == 'yesterday':
         yesterday = datetime.now() - timedelta(days=1)
         str_name = 'За вчера'
-        return yesterday.strftime("%Y-%m-%d"), yesterday.strftime("%Y-%m-%d"), str_name
+        return yesterday.strftime("%Y-%m-%d"), yesterday.strftime("%Y-%m-%d") + " 23:59:59", str_name
     elif period == 'today':
         str_name = 'За сегодня'
-        return now.strftime("%Y-%m-%d"), now.strftime("%Y-%m-%d"), str_name
+        return now.strftime("%Y-%m-%d"), now.strftime("%Y-%m-%d %H:%M:%S"), str_name
     elif period == 'week':
         start_of_week = now - timedelta(days=now.weekday())
         str_name = 'За текущую неделю'
-        return start_of_week.strftime("%Y-%m-%d"), now.strftime("%Y-%m-%d"), str_name
+        return start_of_week.strftime("%Y-%m-%d"), now.strftime("%Y-%m-%d %H:%M:%S"), str_name
     elif period == 'month':
         start_of_month = datetime(now.year, now.month, 1)
         str_name = 'За текущий месяц'
-        return start_of_month.strftime("%Y-%m-%d"), now.strftime("%Y-%m-%d"), str_name
+        return start_of_month.strftime("%Y-%m-%d"), now.strftime("%Y-%m-%d %H:%M:%S"), str_name
 
 
 # Автоматизация импорта данных и сформирования в эксель 2 раза в сутки

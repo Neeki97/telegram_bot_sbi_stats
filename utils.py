@@ -12,7 +12,7 @@ def autenfication_number(phone, chat_id, firstname, lastname, username):
         SELECT * FROM telegram_users WHERE phonenumber= %s """
     cursor.execute(query, (phone,))
     result = cursor.fetchall()
-    logging.info('result: %r', result)
+    logging.info('User_info from db: %r', result)
     if result:
         query = """
         UPDATE telegram_users
@@ -28,7 +28,7 @@ def autenfication_number(phone, chat_id, firstname, lastname, username):
 def excel_write(data, type_operation, period):
     current_date = datetime.now().strftime("%Y-%m-%d_%H-%M")
     df = pd.DataFrame.from_dict(data, orient='index', columns=['Количество продаж', 'Общая сумма', 'Начало даты', 'Конец даты'])
-    logging.info('df_info: %r', df)
+    # logging.info('excel_write: %r', df)
     filename = f'Отчёт_{type_operation}_{period}_{current_date.replace("-", "_")}.xlsx'
     filepath = f'loads//{filename}'
     df.to_excel(filepath, index_label=f'{type_operation}')
@@ -45,10 +45,7 @@ def excel_read(operation, period):
     cursor.execute(query)
     excel_file_path = cursor.fetchone()[0]
     # logging.info('path: %r', excel_file_path)
-    # excel_file_path = os.path.normpath(excel_file_path[0])
-    # logging.info('path_new: %r', excel_file_path)
     df = pd.read_excel(excel_file_path)
-    new_data = {}
     text_file = f'<b>Отчёт: {str_operation(operation)}</b>\n<b>Период: {str_period(period)}</b>\n\n'
     for index, device in df[f'{operation}'].items():
         sales = int(df['Количество продаж'][index])
