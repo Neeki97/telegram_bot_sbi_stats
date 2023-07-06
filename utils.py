@@ -1,24 +1,24 @@
 import logging
-from datetime import datetime, timedelta
-from database import server, cursor, connection
+import re
+from datetime import datetime
+from database import cursor, connection
 import pandas as pd
 from aiogram.types import FSInputFile
 
-import os
-
 
 def autenfication_number(phone, chat_id, firstname, lastname, username):
-    query = f"""
-        SELECT * FROM telegram_users WHERE phonenumber='{phone}' """
-    cursor.execute(query)
+    phone = re.sub(r'\D', '', phone)
+    query = """
+        SELECT * FROM telegram_users WHERE phonenumber= %s """
+    cursor.execute(query, (phone,))
     result = cursor.fetchall()
     logging.info('result: %r', result)
     if result:
-        query = f"""
+        query = """
         UPDATE telegram_users
-        SET chat_id='{chat_id}', firstname='{firstname}', lastname='{lastname}', username='{username}'
-        WHERE phonenumber='{phone}' """
-        cursor.execute(query)
+        SET chat_id=%s, firstname=%s, lastname=%s, username=%s
+        WHERE phonenumber=%s """
+        cursor.execute(query, (chat_id, firstname, lastname, username, phone))
         connection.commit()
         return True
     else:

@@ -3,12 +3,11 @@
 
 import logging
 
-from aiogram import types, Router, F, Bot
-from aiogram.types import CallbackQuery, FSInputFile, ReplyKeyboardRemove, ReplyKeyboardMarkup, InputFile, BufferedInputFile
-from aiogram.filters import Command, Text
+from aiogram import types, Router, F
+from aiogram.types import CallbackQuery
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from utils import autenfication_number, excel_read, uploads_excel
-from importData import import_report
 
 
 import kb

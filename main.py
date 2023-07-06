@@ -1,16 +1,12 @@
 import asyncio
 import logging
-import os
+
 
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.utils.chat_action import ChatActionMiddleware
 from handlers import router
 from config_set import config
-from importData import import_report
-
-import time
-import schedule
 
 
 async def main() -> None:
