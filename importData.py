@@ -17,7 +17,6 @@ def payments_data(start_date, end_date):  # Вывод данных по фин 
         ON ox_sell_transactions.ox_payment_id=ox_payments.id
         WHERE DATE(ox_sell_transactions."time") BETWEEN '{start_date}' AND '{end_date}' 
         AND status = 'finished' 
-        AND ox_sell_transactions."type"='sell'
         GROUP BY ox_payments."name" 
         ORDER BY total_price DESC """
     cursor.execute(query)
@@ -42,8 +41,7 @@ def region_data(start_date, end_date):  # Вывод данных по обла�
         ON ox_sell_transactions.ox_sell_id = ox_sell_records.ox_sell_id
         INNER JOIN ox_locations
         ON ox_sell_records.ox_location_id = ox_locations.id
-        WHERE ox_sell_transactions."type"='sell'
-        AND DATE(ox_sell_transactions."time") BETWEEN '{start_date}' AND '{end_date}'
+        WHERE DATE(ox_sell_transactions."time") BETWEEN '{start_date}' AND '{end_date}' 
         AND status='finished'
         AND ox_locations."type"='shop'
         GROUP BY ox_locations."administrativeArea"
@@ -72,8 +70,7 @@ def store_data(start_date, end_date):  # Вывод ТОП-10 по торгов�
         ON ox_sell_transactions.ox_sell_id = ox_sell_records.ox_sell_id
         INNER JOIN ox_locations
         ON ox_sell_records.ox_location_id = ox_locations."id"
-        WHERE ox_sell_transactions."type"='sell' 
-        AND DATE(ox_sell_transactions."time") BETWEEN '{start_date}' AND '{end_date}' 
+        WHERE DATE(ox_sell_transactions."time") BETWEEN '{start_date}' AND '{end_date}' 
         AND ox_sell_transactions."status" = 'finished'
         AND ox_locations."type" = 'shop'
         GROUP BY ox_locations."name"
@@ -109,7 +106,6 @@ def seller_data(start_date, end_date):  # Вывод ТОП-10 по продав
         INNER JOIN ox_locations
         ON ox_sell_records.ox_location_id = ox_locations."id"
         WHERE DATE(ox_sell_transactions."time") BETWEEN '{start_date}' AND '{end_date}'
-        AND ox_sell_transactions."type" ='sell'
         AND ox_sell_transactions.status = 'finished'
         AND ox_locations."type" = 'shop'
         GROUP BY ox_users."firstName", ox_users."lastName", ox_locations."name"
@@ -140,7 +136,6 @@ def device_data(start_date, end_date):  # Вывод ТОП-10 по девайс
         INNER JOIN ox_sell_transactions
         ON ox_sell_transactions.ox_sell_id = ox_sell_records.ox_sell_id
         WHERE DATE(ox_sell_transactions."time") BETWEEN '{start_date}' AND '{end_date}' 
-        AND ox_sell_transactions."type"='sell'
         AND ox_sell_transactions.status='finished'
         GROUP BY ox_variants."name"
         ORDER BY total_price DESC
