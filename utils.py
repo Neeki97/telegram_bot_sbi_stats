@@ -74,7 +74,6 @@ def uploads_excel(operation, period):
 
 def subscriptions_data(operation, period):
     load_dotenv(find_dotenv())
-    # auth = ('admin', 'ltybc91!')
     auth = (os.environ.get('auth_username'), os.environ.get('auth_password'))
     query_params = {'period': f'{period}'}
     base_url = f'https://api-server.retailbox.uz/api/v1/exchange/dashboard/subscription/{operation}'

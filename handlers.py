@@ -113,14 +113,6 @@ async def input_period(clbck: CallbackQuery, state: FSMContext):
         elif state.get('menu') == 'subscriptions':
             text_report = subscriptions_data(state_period.get('operation'), state_period.get('period'))
             await clbck.message.edit_text(text=text_report, reply_markup=kb.excel)
-    #
-    # elif clbck.data == excel_button:
-    #     state = await state.get_data()
-    #     # logging.info('log_state: %r', state)
-    #     file = uploads_excel(state['operation'], state['period'])
-    #     await clbck.message.answer_document(caption='Файл готов! ', document=file)
-    # chat_id = clbck.message.chat.id
-    # logging.info('user_chat_id: %r', chat_id)
 
 
 @router.callback_query(F.data.in_({'excel'}))
