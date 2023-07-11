@@ -36,14 +36,24 @@ async def autenfication_user(msg: types.Message):
     # logging.info("username: %r", username)
     if autenfication_number(phone, chat_id, firstname, lastname, username):
         await msg.reply(text='Отлично! У вас есть доступ!', reply_markup=types.ReplyKeyboardRemove())
-        await msg.answer(text.menu, reply_markup=kb.operation)
+        await msg.answer(text='start menu', reply_markup=kb.menu)
     else:
-        await msg.reply('Извините у вас нет доступа !')
+        await msg.reply('Извините, у Вас нет доступа !')
+
+
+@router.callback_query(F.data.in_({'menu'}))
+async def start_handler(clbck: CallbackQuery):
+    await clbck.message.edit_text(text.menu.format(), reply_markup=kb.menu)
 
 
 @router.callback_query(F.data.in_({'Выбрать отчёт'}))
-async def start_handler(clbck: CallbackQuery, state: FSMContext):
-    await clbck.message.answer(text.menu.format(), reply_markup=kb.operation)
+async def start_handler(clbck: CallbackQuery):
+    await clbck.message.edit_text(text.menu.format(), reply_markup=kb.operation)
+
+
+@router.callback_query(F.data.in_({'subscriptions'}))
+async def subscriptions_menu(clbck: CallbackQuery):
+    await clbck.message.edit_text(text='подписка меню', reply_markup=kb.subscriptions)
 
 
 @router.callback_query(F.data.in_({'payments', 'regions', 'stores', 'sellers', 'devices'}))

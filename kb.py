@@ -5,12 +5,31 @@ phone_number = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Подели�
                             input_field_placeholder='Без номера никуда!')
 
 
+menu_btn = [
+    [InlineKeyboardButton(text='Данные по всем продажам', callback_data='Выбрать отчёт')],
+    [InlineKeyboardButton(text='Смартфон по подписке', callback_data='subscriptions')]
+]
+
+menu = InlineKeyboardMarkup(inline_keyboard=menu_btn)
+
+
+subscriptions_button = [
+    [InlineKeyboardButton(text='Общие данные', callback_data='stats')],
+    [InlineKeyboardButton(text='ТОП-10 локаций', callback_data='shops')],
+    [InlineKeyboardButton(text='ТОП-10 продавцов', callback_data='users')],
+    [InlineKeyboardButton(text='Данные по смартфонам', callback_data='variants')],
+    [InlineKeyboardButton(text='Вернуться в меню', callback_data='menu')]
+]
+subscriptions = InlineKeyboardMarkup(inline_keyboard=subscriptions_button)
+
+
 operation_button = [
-    [InlineKeyboardButton(text='Данные по всем фин. партнерам', callback_data='payments')],
+    [InlineKeyboardButton(text='Данные по всем продажам', callback_data='payments')],
     [InlineKeyboardButton(text='Данные по областям', callback_data='regions')],
     [InlineKeyboardButton(text='ТОП-10 локаций', callback_data='stores')],
     [InlineKeyboardButton(text='ТОП-10 продавцов', callback_data='sellers')],
-    [InlineKeyboardButton(text='ТОП-10 девайсов', callback_data='devices')]
+    [InlineKeyboardButton(text='ТОП-10 девайсов', callback_data='devices')],
+    [InlineKeyboardButton(text='Вернуться в меню', callback_data='menu')]
 ]
 operation = InlineKeyboardMarkup(inline_keyboard=operation_button)
 
@@ -27,11 +46,11 @@ period = InlineKeyboardMarkup(inline_keyboard=period_button)
 
 excel_button = [
     [InlineKeyboardButton(text='Сформировать excel-файл', callback_data='excel')],
-    [InlineKeyboardButton(text='Выбрать отчёт', callback_data='Выбрать отчёт')]
+    [InlineKeyboardButton(text='Перейти в меню', callback_data='menu')]
 ]
 upload_excel = InlineKeyboardMarkup(inline_keyboard=excel_button)
 
 
-start = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Выбрать отчёт')]],
-                            resize_keyboard=True,
-                            input_field_placeholder='Нажмите кнопку для выбора отчёта')
+# start = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Выбрать отчёт')]],
+#                             resize_keyboard=True,
+#                             input_field_placeholder='Нажмите кнопку для выбора отчёта')
