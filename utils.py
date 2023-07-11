@@ -4,6 +4,9 @@ from datetime import datetime
 from database import cursor, connection
 import pandas as pd
 from aiogram.types import FSInputFile
+import requests
+import os
+from dotenv import load_dotenv, find_dotenv
 
 
 def autenfication_number(phone, chat_id, firstname, lastname, username):
@@ -46,7 +49,7 @@ def excel_read(operation, period):
     excel_file_path = cursor.fetchone()[0]
     # logging.info('path: %r', excel_file_path)
     df = pd.read_excel(excel_file_path)
-    text_file = f'<b>Отчёт: {str_operation(operation)}</b>\n<b>Период: {str_period(period)}</b>\n\n'
+    text_file = f'<b>Отчёт: {str_operation(operation)}\nПериод: {str_period(period)}</b>\n\n'
     for index, device in df[f'{operation}'].items():
         sales = int(df['Количество продаж'][index])
         total_price = int(df['Общая сумма'][index])
@@ -69,6 +72,54 @@ def uploads_excel(operation, period):
     return file
 
 
+def subscriptions_data(operation, period):
+    load_dotenv(find_dotenv())
+    # auth = ('admin', 'ltybc91!')
+    auth = (os.environ.get('auth_username'), os.environ.get('auth_password'))
+    query_params = {'period': f'{period}'}
+    base_url = f'https://api-server.retailbox.uz/api/v1/exchange/dashboard/subscription/{operation}'
+    response = requests.get(base_url, auth=auth, params=query_params)
+    if response.status_code == 200:
+        if operation == 'stats':
+            data = response.json()
+            text_file = f'<b>Отчёт: Общие данные по подписке\nПериод: {str_period(period)}</b> \n\n'
+            lst_data = data['data']
+            subscription_count = lst_data[0]['value']
+            subscription_done = lst_data[3]['value']
+            subscriptions_sum_product_price = lst_data[5]['value']
+            formatted_total_price = '{:,}'.format(subscriptions_sum_product_price).replace(',', ' ')
+            text_file += f"Всего запросов по подписке: {subscription_count}\nВсего оформлено подписок: {subscription_done}\nОбщая сумма продаж: {formatted_total_price} сум\n"
+            logging.info('text: %r', text_file)
+            return text_file
+        elif operation in ['users', 'shops']:
+            data = response.json()
+            text_file = f'<b>Отчёт: {str_operation(operation)}\nПериод: {str_period(period)}</b> \n\n'
+            for values in data['data']:
+                name = values['name']
+                subscription_count = values['subscriptions_count']
+                subscription_done = values['subscriptions_done']
+                owner_tickers_count = values['owner_tickets_count']
+                subscriptions_sum_product_price = values['subscriptions_sum_product_price']
+                formatted_total_price = '{:,}'.format(subscriptions_sum_product_price).replace(',', ' ')
+                text_file += f"""<b>{name}</b>\nВсего запросов по подписке: {subscription_count}\nВсего оформлено подписок: {subscription_done}\nВсего ошибок в оформлении подписок: {owner_tickers_count}\nОбщая сумма продаж: {formatted_total_price} сум \n\n"""
+            logging.info('text: %r', text_file)
+            return text_file
+        elif operation == 'variants':
+            data = response.json()
+            text_file = f'<b>Отчёт: {str_operation(operation)}\nПериод: {str_period(period)}</b> \n\n'
+            for values in data['data']:
+                name = values['name']
+                subscription_count = values['subscriptions_count']
+                subscription_done = values['subscriptions_done']
+                subscriptions_sum_product_price = values['subscriptions_sum_product_price']
+                formatted_total_price = '{:,}'.format(subscriptions_sum_product_price).replace(',', ' ')
+                text_file += f"""<b>{name}</b>\nВсего запросов по подписке: {subscription_count}\nВсего оформлено подписок: {subscription_done}\nОбщая сумма продаж: {formatted_total_price} сум \n\n"""
+            logging.info('text: %r', text_file)
+            return text_file
+    else:
+        logging.info('Ошибка при выполнении запроса: %r', response.status_code)
+
+
 def str_operation(operation):
     if operation == 'payments':
         str_op = 'По платежам'
@@ -76,14 +127,17 @@ def str_operation(operation):
     elif operation == 'regions':
         str_op = 'По областям'
         return str_op
-    elif operation == 'stores':
+    elif operation in ['stores', 'shops']:
         str_op = 'По торговым точкам'
         return str_op
-    elif operation == 'sellers':
+    elif operation in ['sellers', 'users']:
         str_op = 'ТОП-10 продавцов'
         return str_op
     elif operation == 'devices':
         str_op = 'ТОП-10 девайсов'
+        return str_op
+    elif operation == 'variants':
+        str_op = 'По смартфонам'
         return str_op
 
 

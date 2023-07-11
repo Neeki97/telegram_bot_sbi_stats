@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime, timedelta
-from database import cursor
 
+from database import cursor
 from database import connection
 from utils import excel_write
 
@@ -209,3 +209,5 @@ def import_report():
 
 
 import_report()
+
+

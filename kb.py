@@ -6,7 +6,7 @@ phone_number = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Подели�
 
 
 menu_btn = [
-    [InlineKeyboardButton(text='Данные по всем продажам', callback_data='Выбрать отчёт')],
+    [InlineKeyboardButton(text='Данные по всем продажам', callback_data='all records')],
     [InlineKeyboardButton(text='Смартфон по подписке', callback_data='subscriptions')]
 ]
 
@@ -48,7 +48,7 @@ excel_button = [
     [InlineKeyboardButton(text='Сформировать excel-файл', callback_data='excel')],
     [InlineKeyboardButton(text='Перейти в меню', callback_data='menu')]
 ]
-upload_excel = InlineKeyboardMarkup(inline_keyboard=excel_button)
+excel = InlineKeyboardMarkup(inline_keyboard=excel_button)
 
 
 # start = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Выбрать отчёт')]],
