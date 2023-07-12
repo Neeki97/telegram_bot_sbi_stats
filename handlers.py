@@ -46,7 +46,7 @@ async def main_menu(clbck: CallbackQuery, state: FSMContext):
     await state.set_state(Form.menu)
     # await state.clear()
     state_menu = await state.update_data(menu=clbck.data)
-    logging.info('menu: %r', state_menu.get('menu'))
+    # logging.info('menu: %r', state_menu.get('menu'))
     await clbck.message.delete_reply_markup()
     await state.set_state(Form.operation)
     if state_menu.get('menu') == 'all records':
@@ -75,7 +75,7 @@ async def input_subscriptions(clbck: CallbackQuery, state: FSMContext):
     await state.set_state(Form.operation)
     # await state.clear()
     state_operation = await state.update_data(operation=clbck.data)
-    logging.info('operation: %r', state_operation)
+    # logging.info('operation: %r', state_operation)
     await clbck.message.delete_reply_markup()
     await state.set_state(Form.period)
     await clbck.message.edit_text(text=text.date, reply_markup=kb.period)
@@ -86,7 +86,7 @@ async def input_operation(clbck: CallbackQuery, state: FSMContext):
     await state.set_state(Form.operation)
     # await state.clear()
     state_operation = await state.update_data(operation=clbck.data)
-    logging.info('operation: %r', state_operation)
+    # logging.info('operation: %r', state_operation)
     await clbck.message.delete_reply_markup()
     await state.set_state(Form.period)
     await clbck.message.edit_text(text.date, reply_markup=kb.period)
@@ -104,7 +104,7 @@ async def input_period(clbck: CallbackQuery, state: FSMContext):
             await clbck.message.edit_text(text.menu, reply_markup=kb.subscriptions)
     elif clbck.data in lst_period:
         state_period = await state.update_data(period=clbck.data)
-        logging.info('period: %r', state_period)
+        # logging.info('period: %r', state_period)
         state = await state.get_data()
         logging.info('state: %r', state)
         if state.get('menu') == 'all records':
@@ -112,18 +112,19 @@ async def input_period(clbck: CallbackQuery, state: FSMContext):
             await clbck.message.edit_text(text=text_report, reply_markup=kb.excel)
         elif state.get('menu') == 'subscriptions':
             text_report = subscriptions_data(state_period.get('operation'), state_period.get('period'))
-            await clbck.message.edit_text(text=text_report, reply_markup=kb.excel)
+            await clbck.message.edit_text(text=text_report, reply_markup=kb.mainmenu)
 
 
 @router.callback_query(F.data.in_({'excel'}))
 async def excel_file(clbck: CallbackQuery, state: FSMContext):
     state = await state.get_data()
+    logging.info('exl_state: %r', state)
     if state.get('menu') == 'all records':
         file = uploads_excel(state['operation'], state['period'])
         await clbck.message.answer_document(caption='Файл готов!', document=file)
-    elif state.get('menu') == 'subscriptions':
-        file = ''
-        await clbck.message.answer_document(caption='Файл готов!', document=file)
+    # elif state.get('menu') == 'subscriptions':
+    #     file = test(state.get('operation'), state.get('period'))
+    #     await clbck.message.answer_document(caption='Файл готов!', document=file)
 
 
 @router.message(F.text)

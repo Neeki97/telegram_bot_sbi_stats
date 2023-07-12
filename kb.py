@@ -51,6 +51,11 @@ excel_button = [
 excel = InlineKeyboardMarkup(inline_keyboard=excel_button)
 
 
+back_to_menu = [
+    [InlineKeyboardButton(text='Перейти в меню', callback_data='menu')]
+]
+mainmenu = InlineKeyboardMarkup(inline_keyboard=back_to_menu)
+
 # start = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Выбрать отчёт')]],
 #                             resize_keyboard=True,
 #                             input_field_placeholder='Нажмите кнопку для выбора отчёта')
