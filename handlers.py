@@ -35,8 +35,8 @@ async def autenfication_user(msg: types.Message):
     # logging.info("lastname: %r", lastname)
     # logging.info("username: %r", username)
     if autenfication_number(phone, chat_id, firstname, lastname, username):
-        await msg.reply(text='Отлично! У вас есть доступ!', reply_markup=types.ReplyKeyboardRemove())
-        await msg.answer(text='start menu', reply_markup=kb.menu)
+        await msg.reply(text='<b>Отлично! У Вас есть доступ! </b>', reply_markup=types.ReplyKeyboardRemove())
+        await msg.answer(text=text.start_menu, reply_markup=kb.menu)
     else:
         await msg.reply('Извините, у Вас нет доступа !')
 
@@ -57,7 +57,7 @@ async def main_menu(clbck: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.in_({'menu'}))
 async def start_handler(clbck: CallbackQuery):
-    await clbck.message.edit_text(text.menu.format(), reply_markup=kb.menu)
+    await clbck.message.edit_text(text.start_menu.format(), reply_markup=kb.menu)
 
 
 @router.callback_query(F.data.in_({'all records'}))
@@ -92,17 +92,10 @@ async def input_operation(clbck: CallbackQuery, state: FSMContext):
     await clbck.message.edit_text(text.date, reply_markup=kb.period)
 
 
-@router.callback_query(Form.period, F.data.in_({'today', 'yesterday', 'week', 'month', 'cancel'}))
+@router.callback_query(Form.period, F.data.in_({'today', 'yesterday', 'week', 'month'}))
 async def input_period(clbck: CallbackQuery, state: FSMContext):
-    lst_period = 'today', 'yesterday', 'week', 'month'
-    cancel_button = 'cancel'
-    if clbck.data == cancel_button:
-        state = await state.get_data()
-        if state.get('menu') == 'all records':
-            await clbck.message.edit_text(text.menu, reply_markup=kb.operation)
-        elif state.get('menu') == 'subscriptions':
-            await clbck.message.edit_text(text.menu, reply_markup=kb.subscriptions)
-    elif clbck.data in lst_period:
+    # lst_period = 'today', 'yesterday', 'week', 'month'
+    # if clbck.data in lst_period:
         state_period = await state.update_data(period=clbck.data)
         # logging.info('period: %r', state_period)
         state = await state.get_data()
@@ -115,6 +108,15 @@ async def input_period(clbck: CallbackQuery, state: FSMContext):
             await clbck.message.edit_text(text=text_report, reply_markup=kb.mainmenu)
 
 
+@router.callback_query(F.data.in_({'cancel'}))
+async def cancel_btn(clbck: CallbackQuery, state: FSMContext):
+    state = await state.get_data()
+    if state.get('menu') == 'all records':
+        await clbck.message.edit_text(text.menu, reply_markup=kb.operation)
+    elif state.get('menu') == 'subscriptions':
+        await clbck.message.edit_text(text.menu, reply_markup=kb.subscriptions)
+
+
 @router.callback_query(F.data.in_({'excel'}))
 async def excel_file(clbck: CallbackQuery, state: FSMContext):
     state = await state.get_data()
@@ -122,6 +124,7 @@ async def excel_file(clbck: CallbackQuery, state: FSMContext):
     if state.get('menu') == 'all records':
         file = uploads_excel(state['operation'], state['period'])
         await clbck.message.answer_document(caption='Файл готов!', document=file)
+        # await clbck.message.answer(text='Файл готов!', document=file, reply_markup=kb.menu)
     # elif state.get('menu') == 'subscriptions':
     #     file = test(state.get('operation'), state.get('period'))
     #     await clbck.message.answer_document(caption='Файл готов!', document=file)
