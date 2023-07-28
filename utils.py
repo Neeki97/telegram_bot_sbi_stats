@@ -34,7 +34,7 @@ def excel_write(data, type_operation, period):
     df = pd.DataFrame.from_dict(data, orient='index', columns=['Количество продаж', 'Общая сумма', 'Начало даты', 'Конец даты'])
     # logging.info('excel_write: %r', df)
     filename = f'Отчёт_{type_operation}_{period}_{current_date.replace("-", "_")}.xlsx'
-    filepath = f'loads//{filename}'
+    filepath = f'//home//report//web//report.smartblax.uz//public_html/loads//{filename}'
     df.to_excel(filepath, index_label=f'{type_operation}')
     return filepath, filename
 
