@@ -41,7 +41,7 @@ def region_data(start_date, end_date):  # Вывод данных по обла�
         ON ox_sell_transactions.ox_sell_id = ox_sell_records.ox_sell_id
         INNER JOIN ox_locations
         ON ox_sell_records.ox_location_id = ox_locations.id
-        WHERE DATE(ox_sell_transactions."time") BETWEEN '{start_date}' AND '{end_date}' 
+        WHERE DATE(ox_sell_transactions."time") BETWEEN '{start_date}' AND '{end_date}' AND ox_locations.ox_brand_id = 1
         AND status='finished'
         AND ox_locations."type"='shop'
         GROUP BY ox_locations."administrativeArea"
@@ -70,7 +70,7 @@ def store_data(start_date, end_date):  # Вывод ТОП-10 по торгов�
         ON ox_sell_transactions.ox_sell_id = ox_sell_records.ox_sell_id
         INNER JOIN ox_locations
         ON ox_sell_records.ox_location_id = ox_locations."id"
-        WHERE DATE(ox_sell_transactions."time") BETWEEN '{start_date}' AND '{end_date}' 
+        WHERE DATE(ox_sell_transactions."time") BETWEEN '{start_date}' AND '{end_date}' AND ox_locations.ox_brand_id = 1
         AND ox_sell_transactions."status" = 'finished'
         AND ox_locations."type" = 'shop'
         GROUP BY ox_locations."name"
@@ -105,7 +105,7 @@ def seller_data(start_date, end_date):  # Вывод ТОП-10 по продав
         ON ox_sells."id" = ox_sell_transactions.ox_sell_id
         INNER JOIN ox_locations
         ON ox_sell_records.ox_location_id = ox_locations."id"
-        WHERE DATE(ox_sell_transactions."time") BETWEEN '{start_date}' AND '{end_date}'
+        WHERE DATE(ox_sell_transactions."time") BETWEEN '{start_date}' AND '{end_date}' AND ox_locations.ox_brand_id = 1
         AND ox_sell_transactions.status = 'finished'
         AND ox_locations."type" = 'shop'
         GROUP BY ox_users."firstName", ox_users."lastName", ox_locations."name"
