@@ -94,8 +94,6 @@ async def input_operation(clbck: CallbackQuery, state: FSMContext):
 
 @router.callback_query(Form.period, F.data.in_({'today', 'yesterday', 'week', 'month'}))
 async def input_period(clbck: CallbackQuery, state: FSMContext):
-    # lst_period = 'today', 'yesterday', 'week', 'month'
-    # if clbck.data in lst_period:
     state_period = await state.update_data(period=clbck.data)
     # logging.info('period: %r', state_period)
     state = await state.get_data()

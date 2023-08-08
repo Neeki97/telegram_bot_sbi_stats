@@ -154,24 +154,3 @@ def str_period(period):
     elif period == 'month':
         str_per = 'За текущий месяц'
         return str_per
-
-
-# def test(operation, period):
-#     logging.info('test_stats: %r', operation, period)
-#     load_dotenv(find_dotenv())
-#     auth = (os.environ.get('auth_username'), os.environ.get('auth_password'))
-#     query_params = {'period': f'{period}'}
-#     base_url = f'https://api-server.retailbox.uz/api/v1/exchange/dashboard/subscription/{operation}'
-#     response = requests.get(base_url, auth=auth, params=query_params)
-#     data = response.json()
-#     lst = data['data']
-#     if operation == 'stats':
-#         new_dict = {}
-#         for item in lst:
-#             new_dict[item['title']] = item['value']
-#         df = pd.DataFrame.from_dict(new_dict, orient='index')
-#         exl_buffer = io.BytesIO()
-#         df.to_excel('example.xlsx', index=False)
-#         return exl_buffer.seek(0)
-#     else:
-#         return 'выбрал не то!'
