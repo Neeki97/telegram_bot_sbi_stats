@@ -94,18 +94,18 @@ async def input_operation(clbck: CallbackQuery, state: FSMContext):
 
 @router.callback_query(Form.period, F.data.in_({'today', 'yesterday', 'week', 'month'}))
 async def input_period(clbck: CallbackQuery, state: FSMContext):
-    lst_period = 'today', 'yesterday', 'week', 'month'
-    if clbck.data in lst_period:
-        state_period = await state.update_data(period=clbck.data)
-        # logging.info('period: %r', state_period)
-        state = await state.get_data()
-        logging.info('state: %r', state)
-        if state.get('menu') == 'all records':
-            text_report = excel_read(state_period.get('operation'), state_period.get('period'))
-            await clbck.message.edit_text(text=text_report, reply_markup=kb.excel)
-        elif state.get('menu') == 'subscriptions':
-            text_report = subscriptions_data(state_period.get('operation'), state_period.get('period'))
-            await clbck.message.edit_text(text=text_report, reply_markup=kb.mainmenu)
+    # lst_period = 'today', 'yesterday', 'week', 'month'
+    # if clbck.data in lst_period:
+    state_period = await state.update_data(period=clbck.data)
+    # logging.info('period: %r', state_period)
+    state = await state.get_data()
+    logging.info('state: %r', state)
+    if state.get('menu') == 'all records':
+        text_report = excel_read(state_period.get('operation'), state_period.get('period'))
+        await clbck.message.edit_text(text=text_report, reply_markup=kb.excel)
+    elif state.get('menu') == 'subscriptions':
+        text_report = subscriptions_data(state_period.get('operation'), state_period.get('period'))
+        await clbck.message.edit_text(text=text_report, reply_markup=kb.mainmenu)
 
 
 @router.callback_query(F.data.in_({'cancel'}))
